@@ -1,0 +1,850 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.39.26.7824",
+      "templateHash": "7231524400219320817"
+    }
+  },
+  "parameters": {
+    "appName": {
+      "type": "string",
+      "defaultValue": "expenses",
+      "metadata": {
+        "description": "Application name prefix used for all resources"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "allowedValues": [
+        "staging",
+        "production"
+      ],
+      "metadata": {
+        "description": "Deployment environment"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "uksouth",
+      "metadata": {
+        "description": "Azure region for all resources"
+      }
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "defaultValue": "B1",
+      "metadata": {
+        "description": "SKU for the App Service Plan"
+      }
+    },
+    "sqlAadAdminObjectId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Azure AD admin object ID for SQL Server"
+      }
+    },
+    "sqlAadAdminName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Azure AD admin display name for SQL Server"
+      }
+    }
+  },
+  "variables": {
+    "env": "[toLower(parameters('environment'))]",
+    "planName": "[format('plan-{0}-{1}', parameters('appName'), variables('env'))]",
+    "apiAppName": "[format('app-{0}-api-{1}', parameters('appName'), variables('env'))]",
+    "webAppName": "[format('app-{0}-web-{1}', parameters('appName'), variables('env'))]",
+    "sqlServerName": "[format('sql-{0}-{1}', parameters('appName'), variables('env'))]",
+    "sqlDatabaseName": "[format('sqldb-{0}-{1}', parameters('appName'), variables('env'))]",
+    "apiIdentityName": "[format('id-{0}-api-{1}', parameters('appName'), variables('env'))]",
+    "webIdentityName": "[format('id-{0}-web-{1}', parameters('appName'), variables('env'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-identity-api",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('apiIdentityName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "18385049629157527068"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the managed identity"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2023-01-31",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the managed identity"
+              },
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))]"
+            },
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal ID of the managed identity"
+              },
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name')), '2023-01-31').principalId]"
+            },
+            "clientId": {
+              "type": "string",
+              "metadata": {
+                "description": "Client ID of the managed identity"
+              },
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name')), '2023-01-31').clientId]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-identity-web",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('webIdentityName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "18385049629157527068"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the managed identity"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2023-01-31",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the managed identity"
+              },
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name'))]"
+            },
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal ID of the managed identity"
+              },
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name')), '2023-01-31').principalId]"
+            },
+            "clientId": {
+              "type": "string",
+              "metadata": {
+                "description": "Client ID of the managed identity"
+              },
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('name')), '2023-01-31').clientId]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-app-service-plan",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('planName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "skuName": {
+            "value": "[parameters('appServicePlanSku')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "5124771224066350943"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the App Service Plan"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            },
+            "skuName": {
+              "type": "string",
+              "metadata": {
+                "description": "SKU name for the App Service Plan"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2023-12-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "kind": "linux",
+              "sku": {
+                "name": "[parameters('skuName')]"
+              },
+              "properties": {
+                "reserved": true
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the App Service Plan"
+              },
+              "value": "[resourceId('Microsoft.Web/serverfarms', parameters('name'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-sql-server",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('sqlServerName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "aadAdminObjectId": {
+            "value": "[parameters('sqlAadAdminObjectId')]"
+          },
+          "aadAdminName": {
+            "value": "[parameters('sqlAadAdminName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "5927474291119982488"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the SQL Server"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            },
+            "aadAdminObjectId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Azure AD admin object ID"
+              }
+            },
+            "aadAdminName": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Azure AD admin display name"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers",
+              "apiVersion": "2023-08-01-preview",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "minimalTlsVersion": "1.2",
+                "administrators": "[if(not(empty(parameters('aadAdminObjectId'))), createObject('administratorType', 'ActiveDirectory', 'principalType', 'Application', 'login', parameters('aadAdminName'), 'sid', parameters('aadAdminObjectId'), 'tenantId', subscription().tenantId, 'azureADOnlyAuthentication', true()), null())]"
+              }
+            },
+            {
+              "type": "Microsoft.Sql/servers/azureADOnlyAuthentications",
+              "apiVersion": "2023-08-01-preview",
+              "name": "[format('{0}/{1}', parameters('name'), 'Default')]",
+              "properties": {
+                "azureADOnlyAuthentication": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Sql/servers/firewallRules",
+              "apiVersion": "2023-08-01-preview",
+              "name": "[format('{0}/{1}', parameters('name'), 'AllowAzureServices')]",
+              "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "fqdn": {
+              "type": "string",
+              "metadata": {
+                "description": "Fully qualified domain name of the SQL Server"
+              },
+              "value": "[reference(resourceId('Microsoft.Sql/servers', parameters('name')), '2023-08-01-preview').fullyQualifiedDomainName]"
+            },
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the SQL Server"
+              },
+              "value": "[resourceId('Microsoft.Sql/servers', parameters('name'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-sql-database",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('sqlDatabaseName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "sqlServerId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-sql-server'), '2025-04-01').outputs.id.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "8223933502801529405"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the SQL Database"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            },
+            "sqlServerId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the parent SQL Server"
+              }
+            }
+          },
+          "variables": {
+            "serverName": "[last(split(parameters('sqlServerId'), '/'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers/databases",
+              "apiVersion": "2023-08-01-preview",
+              "name": "[format('{0}/{1}', variables('serverName'), parameters('name'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+              },
+              "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 2147483648
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the SQL Database"
+              },
+              "value": "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', variables('serverName'), parameters('name')), '/')[0], split(format('{0}/{1}', variables('serverName'), parameters('name')), '/')[1])]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-sql-server')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-api-app",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('apiAppName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-app-service-plan'), '2025-04-01').outputs.id.value]"
+          },
+          "managedIdentityId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-api'), '2025-04-01').outputs.id.value]"
+          },
+          "managedIdentityClientId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-api'), '2025-04-01').outputs.clientId.value]"
+          },
+          "environmentName": "[if(equals(parameters('environment'), 'staging'), createObject('value', 'Staging'), createObject('value', 'Production'))]",
+          "connectionStrings": {
+            "value": {
+              "DefaultConnection": "[format('Server=tcp:{0},1433;Database={1};Authentication=Active Directory Managed Identity;User Id={2};Encrypt=True;TrustServerCertificate=False;', reference(resourceId('Microsoft.Resources/deployments', 'deploy-sql-server'), '2025-04-01').outputs.fqdn.value, variables('sqlDatabaseName'), reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-api'), '2025-04-01').outputs.clientId.value)]"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "13274099393412178828"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Web App"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            },
+            "appServicePlanId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the App Service Plan"
+              }
+            },
+            "managedIdentityId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the user-assigned managed identity"
+              }
+            },
+            "managedIdentityClientId": {
+              "type": "string",
+              "metadata": {
+                "description": "Client ID of the user-assigned managed identity"
+              }
+            },
+            "appSettings": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "App settings as key-value pairs"
+              }
+            },
+            "connectionStrings": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Connection strings configuration"
+              }
+            },
+            "environmentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Environment name (Staging or Production)"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2023-12-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "kind": "app,linux",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('managedIdentityId'))]": {}
+                }
+              },
+              "properties": {
+                "serverFarmId": "[parameters('appServicePlanId')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                  "linuxFxVersion": "DOTNETCORE|10.0",
+                  "minTlsVersion": "1.2",
+                  "ftpsState": "Disabled",
+                  "appSettings": "[concat(createArray(createObject('name', 'ASPNETCORE_ENVIRONMENT', 'value', parameters('environmentName')), createObject('name', 'AZURE_CLIENT_ID', 'value', parameters('managedIdentityClientId'))), map(items(parameters('appSettings')), lambda('item', createObject('name', lambdaVariables('item').key, 'value', lambdaVariables('item').value))))]",
+                  "connectionStrings": "[if(not(empty(parameters('connectionStrings'))), map(items(parameters('connectionStrings')), lambda('item', createObject('name', lambdaVariables('item').key, 'connectionString', lambdaVariables('item').value, 'type', 'SQLAzure'))), createArray())]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "defaultHostname": {
+              "type": "string",
+              "metadata": {
+                "description": "Default hostname of the Web App"
+              },
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2023-12-01').defaultHostName]"
+            },
+            "url": {
+              "type": "string",
+              "metadata": {
+                "description": "URL of the Web App"
+              },
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('name')), '2023-12-01').defaultHostName)]"
+            },
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the Web App"
+              },
+              "value": "[resourceId('Microsoft.Web/sites', parameters('name'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-identity-api')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-app-service-plan')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-sql-server')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deploy-web-app",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[variables('webAppName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-app-service-plan'), '2025-04-01').outputs.id.value]"
+          },
+          "managedIdentityId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-web'), '2025-04-01').outputs.id.value]"
+          },
+          "managedIdentityClientId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-web'), '2025-04-01').outputs.clientId.value]"
+          },
+          "environmentName": "[if(equals(parameters('environment'), 'staging'), createObject('value', 'Staging'), createObject('value', 'Production'))]",
+          "appSettings": {
+            "value": {
+              "ApiBaseUrl": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-api-app'), '2025-04-01').outputs.url.value]",
+              "DisableHttpsRedirect": "true"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.39.26.7824",
+              "templateHash": "13274099393412178828"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Web App"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            },
+            "appServicePlanId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the App Service Plan"
+              }
+            },
+            "managedIdentityId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the user-assigned managed identity"
+              }
+            },
+            "managedIdentityClientId": {
+              "type": "string",
+              "metadata": {
+                "description": "Client ID of the user-assigned managed identity"
+              }
+            },
+            "appSettings": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "App settings as key-value pairs"
+              }
+            },
+            "connectionStrings": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Connection strings configuration"
+              }
+            },
+            "environmentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Environment name (Staging or Production)"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2023-12-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "kind": "app,linux",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('managedIdentityId'))]": {}
+                }
+              },
+              "properties": {
+                "serverFarmId": "[parameters('appServicePlanId')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                  "linuxFxVersion": "DOTNETCORE|10.0",
+                  "minTlsVersion": "1.2",
+                  "ftpsState": "Disabled",
+                  "appSettings": "[concat(createArray(createObject('name', 'ASPNETCORE_ENVIRONMENT', 'value', parameters('environmentName')), createObject('name', 'AZURE_CLIENT_ID', 'value', parameters('managedIdentityClientId'))), map(items(parameters('appSettings')), lambda('item', createObject('name', lambdaVariables('item').key, 'value', lambdaVariables('item').value))))]",
+                  "connectionStrings": "[if(not(empty(parameters('connectionStrings'))), map(items(parameters('connectionStrings')), lambda('item', createObject('name', lambdaVariables('item').key, 'connectionString', lambdaVariables('item').value, 'type', 'SQLAzure'))), createArray())]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "defaultHostname": {
+              "type": "string",
+              "metadata": {
+                "description": "Default hostname of the Web App"
+              },
+              "value": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2023-12-01').defaultHostName]"
+            },
+            "url": {
+              "type": "string",
+              "metadata": {
+                "description": "URL of the Web App"
+              },
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('name')), '2023-12-01').defaultHostName)]"
+            },
+            "id": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the Web App"
+              },
+              "value": "[resourceId('Microsoft.Web/sites', parameters('name'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-api-app')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-app-service-plan')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy-identity-web')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "apiUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the API App"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-api-app'), '2025-04-01').outputs.url.value]"
+    },
+    "webUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the Web App"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-web-app'), '2025-04-01').outputs.url.value]"
+    },
+    "sqlServerFqdn": {
+      "type": "string",
+      "metadata": {
+        "description": "Fully qualified domain name of the SQL Server"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-sql-server'), '2025-04-01').outputs.fqdn.value]"
+    },
+    "apiIdentityPrincipalId": {
+      "type": "string",
+      "metadata": {
+        "description": "Principal ID of the API managed identity"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-api'), '2025-04-01').outputs.principalId.value]"
+    },
+    "webIdentityPrincipalId": {
+      "type": "string",
+      "metadata": {
+        "description": "Principal ID of the Web managed identity"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-web'), '2025-04-01').outputs.principalId.value]"
+    },
+    "apiIdentityClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Client ID of the API managed identity"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-api'), '2025-04-01').outputs.clientId.value]"
+    },
+    "webIdentityClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Client ID of the Web managed identity"
+      },
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy-identity-web'), '2025-04-01').outputs.clientId.value]"
+    }
+  }
+}

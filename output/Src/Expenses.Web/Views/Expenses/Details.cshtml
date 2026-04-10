@@ -1,0 +1,79 @@
+@model ExpenseViewModel
+@{
+    ViewData["Title"] = "Expense Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold mb-0">Expense Details</h1>
+            <span class="badge @Model.StatusBadgeClass fs-6">@Model.StatusName</span>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Date</dt>
+                    <dd class="col-sm-8">@Model.ExpenseDate.ToString("dd MMM yyyy")</dd>
+
+                    <dt class="col-sm-4">Category</dt>
+                    <dd class="col-sm-8">@Model.CategoryName</dd>
+
+                    <dt class="col-sm-4">Amount</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.FormattedAmount</dd>
+
+                    <dt class="col-sm-4">Description</dt>
+                    <dd class="col-sm-8">@(Model.Description ?? "—")</dd>
+
+                    <dt class="col-sm-4">Created</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</dd>
+
+                    @if (Model.SubmittedAt.HasValue)
+                    {
+                        <dt class="col-sm-4">Submitted</dt>
+                        <dd class="col-sm-8">@Model.SubmittedAt.Value.ToString("dd MMM yyyy HH:mm")</dd>
+                    }
+
+                    @if (Model.Reviewer != null)
+                    {
+                        <dt class="col-sm-4">Reviewed By</dt>
+                        <dd class="col-sm-8">@Model.Reviewer.UserName</dd>
+
+                        <dt class="col-sm-4">Reviewed At</dt>
+                        <dd class="col-sm-8">@Model.ReviewedAt?.ToString("dd MMM yyyy HH:mm")</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            @if (Model.CanEdit)
+            {
+                <a href="/expenses/@Model.ExpenseId/edit" class="btn btn-primary">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </a>
+            }
+            @if (Model.CanSubmit)
+            {
+                <form method="post" action="/expenses/@Model.ExpenseId/submit">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success confirm-action" data-confirm="Submit this expense for approval?">
+                        <i class="bi bi-send me-1"></i>Submit
+                    </button>
+                </form>
+            }
+            @if (Model.CanDelete)
+            {
+                <form method="post" action="/expenses/@Model.ExpenseId/delete">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger confirm-action" data-confirm="Delete this expense? This cannot be undone.">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            }
+            <a href="/expenses" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+</div>

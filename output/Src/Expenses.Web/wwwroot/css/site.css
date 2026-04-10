@@ -1,0 +1,355 @@
+/* Expense Manager — Theme & Styling */
+
+:root,
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a2e;
+    --text-secondary: #555770;
+    --text-muted: #6c757d;
+    --border-color: #e0e0e0;
+    --navbar-bg: linear-gradient(135deg, #4361ee, #3a0ca3);
+    --navbar-text: #ffffff;
+    --footer-bg: #f8f9fa;
+    --footer-text: #555770;
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --table-stripe: #f8f9fa;
+    --table-hover: #e9ecef;
+    --input-bg: #ffffff;
+    --input-text: #1a1a2e;
+    --input-border: #ced4da;
+    --badge-draft-bg: #6c757d;
+    --badge-draft-text: #ffffff;
+    --link-color: #4361ee;
+    --link-hover: #3a0ca3;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #16213e;
+    --bg-secondary: #1a1a2e;
+    --bg-card: #1e2a47;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0c0;
+    --text-muted: #8888a0;
+    --border-color: #2a2a4a;
+    --navbar-bg: linear-gradient(135deg, #3a0ca3, #240060);
+    --navbar-text: #ffffff;
+    --footer-bg: #1a1a2e;
+    --footer-text: #8888a0;
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --table-stripe: #1a2240;
+    --table-hover: #243050;
+    --input-bg: #1e2a47;
+    --input-text: #e0e0e0;
+    --input-border: #3a3a5a;
+    --badge-draft-bg: #6c757d;
+    --badge-draft-text: #ffffff;
+    --link-color: #7b8cff;
+    --link-hover: #a0aaff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg-primary: #16213e;
+        --bg-secondary: #1a1a2e;
+        --bg-card: #1e2a47;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0c0;
+        --text-muted: #8888a0;
+        --border-color: #2a2a4a;
+        --navbar-bg: linear-gradient(135deg, #3a0ca3, #240060);
+        --navbar-text: #ffffff;
+        --footer-bg: #1a1a2e;
+        --footer-text: #8888a0;
+        --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --table-stripe: #1a2240;
+        --table-hover: #243050;
+        --input-bg: #1e2a47;
+        --input-text: #e0e0e0;
+        --input-border: #3a3a5a;
+        --link-color: #7b8cff;
+        --link-hover: #a0aaff;
+    }
+}
+
+/* Base */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.6;
+}
+
+main {
+    flex: 1;
+}
+
+a {
+    color: var(--link-color);
+}
+
+a:hover {
+    color: var(--link-hover);
+}
+
+/* Navbar */
+.app-navbar {
+    background: var(--navbar-bg);
+    padding: 12px 0;
+}
+
+.app-navbar .navbar-brand,
+.app-navbar .nav-link,
+.app-navbar .nav-user-label {
+    color: var(--navbar-text) !important;
+}
+
+.app-navbar .nav-link:hover {
+    opacity: 0.85;
+}
+
+.app-navbar .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.app-navbar .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* User Selector in Navbar */
+.user-selector {
+    min-width: 180px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--navbar-text);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+}
+
+.user-selector option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Theme Toggle */
+.theme-toggle-btn {
+    color: var(--navbar-text);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--navbar-text);
+}
+
+/* Footer */
+.app-footer {
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    border-color: var(--border-color);
+}
+
+.dashboard-card {
+    box-shadow: var(--card-shadow);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card .card-body {
+    padding: 24px 16px;
+}
+
+.dashboard-card .card-footer {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 10px;
+    font-size: 0.875rem;
+}
+
+.dashboard-card .card-footer:hover {
+    background-color: var(--table-hover);
+    color: var(--link-color);
+}
+
+/* Tables */
+.app-table {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.app-table thead th {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.app-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.app-table tbody tr:hover {
+    background-color: var(--table-hover);
+}
+
+.app-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges — ensure WCAG AA contrast */
+.badge.bg-secondary {
+    background-color: #5a6270 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-primary {
+    background-color: #3b5bdb !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-success {
+    background-color: #2b8a3e !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-danger {
+    background-color: #c92a2a !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-warning {
+    background-color: #e67700 !important;
+    color: #ffffff !important;
+}
+
+.badge {
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+/* Forms — theme-aware */
+.form-control,
+.form-select {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border-color: var(--input-border);
+    border-radius: 8px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.input-group-text {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-color: var(--input-border);
+}
+
+.form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+/* Buttons — rounded */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px 16px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+/* Description list */
+dl.row dt {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+dl.row dd {
+    color: var(--text-primary);
+}
+
+/* Modal — theme-aware */
+.modal-content {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--border-color);
+}
+
+/* Text utilities - override Bootstrap */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Override Bootstrap card text color in dark theme */
+.card,
+.card-body {
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .dashboard-card .display-4 {
+        font-size: 2rem;
+    }
+
+    .user-selector {
+        min-width: 140px;
+    }
+}
